@@ -1,0 +1,779 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Complete Website with Flip Animation</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        /* --- GENERAL STYLES --- */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', sans-serif;
+            text-decoration: none; /* Added from new navbar styles */
+        }
+
+        body {
+            background-color: #000;
+        }
+        
+        /* --- NAVBAR STYLING (REPLACED) --- */
+        .nav-bar{
+            position: fixed;
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 25px;
+            z-index: 1000;
+        }
+
+        .nav-links{
+            background-color: white;
+            border-radius:15px;
+            padding: 15px;
+            display: flex;
+            gap: 15px;
+            list-style-type: none;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+
+        .nav-links .nav-link{
+            color: black;
+            padding: 8px 10px;
+            font-size: 18px;
+            border-radius: 5px;
+            font-weight: 500;
+            transition: all 0.8s ease;
+        }
+
+        .nav-links .nav-link:hover{
+            background-color: rgba(0, 0, 0, 0.1);
+        }
+
+        /* --- SECTIONS --- */
+        section {
+            padding: 100px 20px;
+            width: 100%;
+            position: relative;
+        }
+
+        .section-grey {
+            background-color: #f9f9f9;
+        }
+
+        #story {
+            z-index: 20;
+            transform-origin: center center;
+            will-change: transform, opacity;
+            overflow: hidden;
+        }
+
+        #services {
+            z-index: 10;
+        }
+
+        .section-title {
+            text-align: center;
+            font-size: 2.8rem;
+            margin-bottom: 3rem;
+        }
+
+        .centered-text {
+            max-width: 800px;
+            margin: auto;
+            text-align: center;
+            font-size: 1.1rem;
+        }
+
+        /* --- HERO SECTION --- */
+        #home {
+            height: 100vh;
+            overflow: hidden;
+            padding: 0;
+        }
+
+        #home video {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            min-width: 100%;
+            min-height: 100%;
+            width: auto;
+            height: auto;
+            transform: translateX(-50%) translateY(-50%);
+            z-index: -1;
+        }
+
+        #home .overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1;
+        }
+        
+        #home .hero-content {
+            position: relative;
+            z-index: 2;
+            color: white;
+            text-align: center;
+            padding-top: 40vh;
+            transform: translateX(-100%);
+            opacity: 0;
+            transition: transform 0.5s ease-out, opacity 0.5s ease-out;
+        }
+        
+        #home .hero-content.slide-in {
+            transform: translateX(0);
+            opacity: 1;
+        }
+
+        #home h1 {
+            font-size: 4rem;
+            text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.7);
+        }
+        
+        /* --- STORY SECTION CONTENT--- */
+        .story-container {
+            display: flex;
+            gap: 40px;
+            max-width: 1200px;
+            margin: auto;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        .story-image { flex: 1 1 45%; min-width: 280px; }
+        .story-image img { width: 100%; height: auto; border-radius: 12px; box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); }
+        .story-text { flex: 1 1 50%; text-align: justify; font-size: 1.1rem; line-height: 1.7; }
+        
+        .story-shrunk { pointer-events: none; }
+
+        /* --- SERVICES SECTION STYLING --- */
+        .services-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 40px;
+            max-width: 1200px;
+            margin: auto;
+            align-items: flex-start;
+        }
+        .services-list { flex: 1 1 300px; list-style: none; padding: 0; margin: 0; }
+        .service-item { padding: 18px 25px; margin-bottom: 12px; border-radius: 10px; cursor: pointer; font-weight: 500; font-size: 1.1rem; border-left: 5px solid transparent; transition: all 0.3s ease; background-color: #f0f0f0; }
+        .service-item:hover { background-color: #e9e9e9; transform: translateX(5px); }
+        .service-item.active { background-color: #ffffff; color: #003366; font-weight: 700; border-left-color: #003366; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08); transform: translateX(5px); }
+        
+        .service-display-card { 
+            flex: 2 1 500px; 
+            background: #ffffff; 
+            padding: 30px 40px; 
+            border-radius: 16px; 
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1); 
+            min-height: 300px;
+            transition: transform 0.6s ease-in-out, opacity 0.3s ease;
+            transform-style: preserve-3d;
+        }
+
+        .service-display-card.flipping {
+            transform: rotateX(90deg) scale(0.9);
+            opacity: 0;
+        }
+        
+        .service-display-card .service-image { 
+            width: 100%; 
+            height: 250px; 
+            object-fit: cover; 
+            border-radius: 10px; 
+            margin-bottom: 20px; 
+            backface-visibility: hidden;
+        }
+
+        .service-display-card h3 { 
+            font-size: 2rem; 
+            color: #111; 
+            margin-bottom: 15px; 
+            backface-visibility: hidden;
+        }
+
+        .service-display-card p { 
+            font-size: 1.1rem; 
+            line-height: 1.7; 
+            color: #555; 
+            backface-visibility: hidden;
+        }
+
+        /* --- WHY CHOOSE US --- */
+        #why {
+            background: white;
+        }
+        .why-banner { padding: 60px 80px; margin: 0 auto; border-radius: 8px; max-width: 1200px; width: 100%; font-size: 1.15rem; line-height: 1.7; background-color: #003366; color: white; text-align: center; }
+
+        /* === FIX ADDED HERE === */
+        .why-banner ul {
+            display: inline-block; /* Allows the list to be centered as a whole */
+            text-align: left;    /* Aligns the text and bullets inside the list to the left */
+            margin-top: 1.5rem;    /* Adds some space above the list */
+        }
+        /* ====================== */
+
+        /* --- CASE STUDIES SECTION STYLES --- */
+        #case-studies {
+            background-color: #fff;
+            padding: 80px 5%;
+            overflow: hidden;
+        }
+
+        .case-studies-wrapper {
+            max-width: 1300px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            gap: 50px;
+        }
+
+        .case-studies-text-content {
+            flex-basis: 40%;
+            flex-shrink: 0;
+        }
+
+        .case-studies-label {
+            font-size: 1rem;
+            color: #555;
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+
+        .case-studies-text-content h1 {
+            font-size: 2.8rem;
+            line-height: 1.2;
+            margin-top: 0;
+            margin-bottom: 24px;
+            color: #111;
+        }
+
+        .case-studies-view-more-link {
+            text-decoration: none;
+            color: #007bff;
+            font-weight: bold;
+            font-size: 1rem;
+        }
+
+        .cards-carousel-container {
+            flex-basis: 60%;
+            overflow: hidden;
+        }
+
+        .cards-carousel {
+            display: flex;
+        }
+
+        .card-link {
+            display: block;
+            text-decoration: none;
+            margin-right: 20px;
+            flex-shrink: 0;
+        }
+
+        .card {
+            width: 320px;
+            height: 450px;
+            background-color: #f0f0f0;
+            border-radius: 12px;
+            background-size: cover;
+            background-position: center;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+            position: relative;
+            overflow: hidden;
+            transition: transform 0.3s ease;
+        }
+
+        .card-link:hover .card {
+            transform: scale(1.03);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.12);
+        }
+
+        .card-overlay {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(to top, rgba(15, 23, 42, 0.9), rgba(15, 23, 42, 0.5));
+            color: #fff;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+            align-items: flex-start;
+            text-align: left;
+            padding: 25px;
+            box-sizing: border-box;
+            transform: translateY(100%);
+            transition: transform 0.4s ease-in-out;
+        }
+
+        .card-link:hover .card-overlay {
+            transform: translateY(0);
+        }
+        
+        /* === MODIFIED: Text animation styles inside overlay === */
+        .card-overlay h3 {
+            margin: 0 0 10px 0;
+            font-size: 1.4rem;
+            transform: translate(-30px, 30px); /* Start from bottom-left */
+            opacity: 0;
+            transition: transform 0.4s ease-out 0.2s, opacity 0.4s ease-out 0.2s;
+        }
+
+        .card-overlay p {
+            margin: 0 0 15px 0;
+            font-size: 0.95rem;
+            line-height: 1.5;
+            opacity: 0;
+            transform: translate(-30px, 30px);
+            transition: transform 0.4s ease-out 0.3s, opacity 0.4s ease-out 0.3s;
+        }
+        
+        .card-overlay span {
+            font-weight: bold;
+            font-size: 0.9rem;
+            color: #fff;
+            background-color: rgba(255, 255, 255, 0.15);
+            padding: 8px 16px;
+            border-radius: 50px;
+            opacity: 0;
+            transform: translate(-30px, 30px);
+            transition: transform 0.4s ease-out 0.4s, opacity 0.4s ease-out 0.4s;
+        }
+
+        /* NEW: Final state for overlay text on hover */
+        .card-link:hover .card-overlay h3,
+        .card-link:hover .card-overlay p,
+        .card-link:hover .card-overlay span {
+            transform: translate(0, 0);
+            opacity: 1;
+        }
+        /* Keep original opacity for paragraph after animation */
+        .card-link:hover .card-overlay p {
+            opacity: 0.9;
+        }
+        /* ====================================================== */
+
+        .hackathon-banner { padding: 60px 80px; margin: 0 auto; border-radius: 8px; max-width: 1200px; width: 100%; font-size: 1.15rem; line-height: 1.7; background-color: #9f5f31; color: white; text-align: center; }
+
+
+        @media (max-width: 992px) {
+            .case-studies-wrapper { flex-direction: column; align-items: flex-start; gap: 40px; }
+            .case-studies-text-content h1 { font-size: 2.2rem; }
+            .cards-carousel-container { width: 100%; }
+        }
+
+        /* --- CONTACT SECTION --- */
+        .contact-section { background-color: #111; color: white; }
+        .contact-container { max-width: 1200px; margin: auto; display: flex; flex-wrap: wrap; gap: 40px; justify-content: space-between; }
+        .contact-left, .contact-right { flex: 1 1 45%; margin-bottom: 20px; min-width: 300px; }
+        .contact-left h3, .contact-right h3 { font-size: 1.8rem; margin-bottom: 20px; }
+        .contact-info { display: flex; align-items: center; margin-bottom: 20px; }
+        .icon-box { width: 40px; height: 40px; border: 1px solid #d0d0d0; display: flex; align-items: center; justify-content: center; border-radius: 8px; margin-right: 15px; }
+        .contact-info a { color: white; text-decoration: none; }
+        .contact-right form { display: flex; flex-wrap: wrap; gap: 20px; }
+        .contact-right .form-group { flex: 1 1 48%; display: flex; flex-direction: column; }
+        .contact-right .form-group.full { flex: 1 1 100%; }
+        .contact-right label { font-weight: 600; margin-bottom: 8px; color: white; }
+        .contact-right input, .contact-right textarea { background-color: #1a1a1a; color: white; border: 1px solid #444; padding: 12px 15px; font-size: 1rem; border-radius: 8px; }
+        .contact-right input::placeholder, .contact-right textarea::placeholder { color: #bbb; }
+        .contact-right textarea { resize: vertical; min-height: 100px; }
+        .contact-right button[type="submit"] { background-color: #2b52cc; color: white; border: none; padding: 14px; border-radius: 8px; font-size: 1rem; font-weight: 600; width: 100%; cursor: pointer; transition: background 0.3s ease; }
+        .contact-right button[type="submit"]:hover { background-color: #1d3da0; }
+        
+        /* --- FOOTER & BACK TO TOP --- */
+        footer { background-color: #111; color: white; text-align: center; padding: 20px 10px; border-top: 1px solid #333; }
+        .footer-container { max-width: 1200px; margin: auto; display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; }
+        .footer-links a { color: white; text-decoration: none; margin: 0 10px; }
+        .footer-links a:hover { text-decoration: underline; }
+        #backToTop { position: fixed; bottom: 30px; right: 30px; z-index: 999; background-color: #007bff; color: white; border: none; border-radius: 50%; padding: 12px 15px; font-size: 18px; cursor: pointer; display: none; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2); transition: opacity 0.3s ease; }
+        #backToTop:hover { background-color: #0056b3; }
+    </style>
+</head>
+<body>
+
+    <nav class="nav-bar">
+        <ul class="nav-links">
+            <li class="nav-item"><a href="#home" class="nav-link">Home</a></li>
+            <li class="nav-item"><a href="#story" class="nav-link">About Us</a></li>
+            <li class="nav-item"><a href="#services" class="nav-link">Services</a></li>
+            <li class="nav-item"><a href="#why" class="nav-link">Why Us</a></li>
+            <li class="nav-item"><a href="#case-studies" class="nav-link">Our Products</a></li>
+            <li class="nav-item"><a href="#contact" class="nav-link">Contact</a></li>
+        </ul> 
+    </nav>
+    
+    <section id="home">
+        <video id="heroVideo" muted loop playsinline>
+            <source src="video/ldi.mov" type="video/mp4">
+            Your browser does not support the video tag.
+        </video>
+        <div class="overlay"></div>
+        <div class="hero-content">
+            <h1>Welcome to Leo Does IT</h1>
+        </div>
+    </section>
+
+    <section id="story" class="section-grey">
+        <div class="story-container">
+            <div class="story-image">
+                <img src="https://images.unsplash.com/photo-1522071820081-009f0129c71c?ixlib=rb-4.0.3&q=85&fm=jpg&crop=entropy&cs=srgb&w=1200" alt="Team collaborating in an office">
+            </div>
+            <div class="story-text">
+                <h2 class="section-title" style="text-align: left; margin-bottom: 1.5rem;">About Leo Does IT</h2>
+                <h3>Where Technology Meets Purpose</h3><p>
+                    At Leo Does IT, we don’t just follow trends – we help shape them. As a next-gen IT solutions provider, we combine precision technology with human insight to deliver lasting value. From hospitals and pharma companies to nonprofits and enterprises, we craft future-forward solutions that solve problems, scale with ambition, and drive measurable success.                </p>
+                <br>
+                <h3>Empowering Businesses with Smart, Scalable, and AI-Driven Solutions</h3>
+                <p>
+                    At Leo DOES IT INC, we develop intelligent software products that simplify operations, reduce manual effort, and improve accuracy. Our products are built to help businesses—from healthcare to IT staffing—streamline their workflows using automation, data insights, and modern AI systems.
+Our focus is to turn everyday operational challenges into efficient, data-driven, and scalable digital processes.
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <section id="services" class="section-grey">
+        <h2 class="section-title">
+            Our Core Services
+        </h2>
+        <div class="services-container">
+            <ul class="services-list">
+                <li class="service-item active" data-service="consulting">AI</li>
+                <li class="service-item" data-service="App_Development">App Development</li>
+                <li class="service-item" data-service="Cloud_Computing">Cloud Computing</li>
+                <li class="service-item" data-service="Cloud_Security">Cloud Security</li>
+                <li class="service-item" data-service="Dev_Ops">Dev ops</li>
+                <li class="service-item" data-service="Gen_AI">Gen_AI</li>
+            </ul>
+
+            <div class="service-display-card">
+                <img id="serviceImage" src="images/AI AdobeStock_791262201.jpeg" alt="Service Image" class="service-image">
+                <h3 id="serviceTitle">AI</h3>
+                <p id="serviceDescription"></p>
+            </div>
+        </div>
+    </section>
+    
+    <section id="why">
+        <div class="why-banner">
+            <h2>Why Choose Us?</h2>
+            <p class="centered-text" style="color: #f0f0f0; margin-top: 1rem;">
+                We are a full-spectrum technology partner, offering end-to-end services across industries like healthcare, life sciences, education, government, and enterprise. Our core capabilities include:
+            </p>
+            <ul>
+                <li>Artificial Intelligence & Generative AI</li>
+                <li>Machine Learning & Data Engineering</li>
+                <li>DevOps & Cloud Security</li>
+                <li>Healthcare & Life Sciences Solutions</li>
+                <li>Full Stack Development & Project Management</li>
+            </ul>
+        </div>
+    </section>
+    
+    <section id="case-studies">
+        <div class="case-studies-wrapper">
+            <div class="case-studies-text-content">
+                <p class="case-studies-label">Products by Us</p>
+                <h1>We drive towards innovation and growth</h1>
+                <a href="#" class="case-studies-view-more-link">View our Products →</a>
+            </div>
+            <div class="cards-carousel-container">
+                <div class="cards-carousel">
+                    <a href="/AI_product.html" class="card-link">
+                        <div class="card" style="background-image: url('images_for_products/AI AdobeStock_791262201.jpeg')">
+                            <div class="card-overlay">
+                                <h3>AI-Driven HR Solutions Suite</h3>
+                                <p>Automating the heart of HR with intelligence and precision.</p>
+                                <span>View More Information &rarr;</span>
+                            </div>
+                        </div>
+                    </a>
+                    <a href="/your-page-2.html" class="card-link">
+                        <div class="card" style="background-image: url('https://images.unsplash.com/photo-1576091160550-2173dba999ef?w=600&q=80')">
+                            <div class="card-overlay">
+                                <h3>Next-Gen AI Products</h3>
+                                <p>We’re constantly innovating. Our upcoming solutions aim to combine AI, MLOps, and cloud automation to help enterprises accelerate their digital transformation.</p>
+                                <span>Coming Soon &rarr;</span>
+                            </div>
+                        </div>
+                    </a>
+                    <a href="/your-page-3.html" class="card-link">
+                        <div class="card" style="background-image: url('https://images.unsplash.com/photo-1542744173-8e7e53415bb0?w=600&q=80')">
+                            <div class="card-overlay">
+                                <h3>Leo EMR</h3>
+                                <h4>Open-Source Electronic Medical Records System</h4>
+                                <p>Empowering clinics, startups, and researchers with a secure, open-source EMR.</p>
+                                <span>View More Information &rarr;</span>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="why">
+        <div class="hackathon-banner">
+            <h2>Hackathon - Vision AI: Building the future together</h2>
+            <p class="centered-text" style="color: #f0f0f0; margin-top: 1rem;">
+                A national level hackathon empowering students to build real-world solutions with VisionAI    
+            </p>
+            <a href="../hackathon/broucher.png" download="../hackathon/broucher.png">
+                <button>Download Brochure</button>
+            </a>
+
+        </div>
+    </section>
+    
+    <section id="contact" class="contact-section">
+        <h2 class="section-title" style="color: white;">Get In Touch</h2>
+        <div class="contact-container">
+            <div class="contact-left">
+                <h3>Contact Information</h3>
+                <p>Have a project in mind or just want to say hello? We'd love to hear from you. Reach out to us through any of the channels below.</p>
+                <br>
+                <div class="contact-info">
+                    <div class="icon-box">📍</div>
+                    <span>1335 Regents Park Dr, Suite# 270, Houston, TX 77058</span>
+                </div>
+                <div class="contact-info">
+                    <div class="icon-box">📧</div>
+                    <a href="mailto:hr@leodoesit.com">hr@leodoesit.com</a>
+                </div>
+                <div class="contact-info">
+                    <div class="icon-box">📞</div>
+                    <a href="tel:+911234567890">+1 3465857793</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer>
+        <div class="footer-container">
+            <p>&copy; 2025 Your Company. All Rights Reserved.</p>
+            <div class="footer-links">
+                <a href="#">Privacy Policy</a>
+                <a href="#">Terms of Service</a>
+            </div>
+        </div>
+    </footer>
+    
+    <button id="backToTop" title="Go to top">↑</button>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // --- HERO SECTION ANIMATION LOGIC ---
+            const heroContent = document.querySelector('#home .hero-content');
+            const heroVideo = document.getElementById('heroVideo');
+
+            if (heroContent && heroVideo) {
+                heroContent.classList.add('slide-in');
+                setTimeout(() => {
+                    heroVideo.play().catch(e => console.log("Video autoplay blocked"));
+                }, 500);
+            }
+
+            // --- SERVICES SECTION LOGIC ---
+            const servicesData = {
+                consulting: { title: 'AI', description: 'Description about the AI work', imageUrl: 'our_service_images/AI AdobeStock_791262201.jpeg' },
+                App_Development: { title: 'App Development', description: 'Description about the App Development work Description about the App Development work Description about the App Development work Description about the App Development work Description about the App Development work', imageUrl: 'our_service_images/Aplication Dev AdobeStock_194025141.jpeg' },
+                Cloud_Computing: { title: 'Cloud Computing', description: 'Description about the Cloud Computing work', imageUrl: 'our_service_images/Cloud Computing AdobeStock_507662376.jpeg' },
+                Cloud_Security: { title: 'Cloud Security', description: 'Description about the Clloud Security work', imageUrl: 'our_service_images/Cloud Security AdobeStock_61107318.jpeg' },
+                Dev_Ops: { title: 'Dev Ops', description: 'Description about the Dev Ops work', imageUrl: 'our_service_images/DevOps AdobeStock_512045284.jpeg' },
+                Gen_AI: { title: 'Gen AI', description: 'Description about the Gen AI work', imageUrl: 'our_service_images/Genrative AI AdobeStock_570400056.jpeg' }
+            };
+            const serviceItems = document.querySelectorAll('.service-item');
+            const serviceImage = document.getElementById('serviceImage');
+            const serviceTitle = document.getElementById('serviceTitle');
+            const serviceDescription = document.getElementById('serviceDescription');
+            const serviceDisplayCard = document.querySelector('.service-display-card');
+
+            function updateServiceDisplay(serviceKey) {
+                const service = servicesData[serviceKey];
+                if (!service) return;
+                serviceDisplayCard.classList.add('flipping');
+                setTimeout(() => {
+                    serviceImage.src = service.imageUrl;
+                    serviceImage.alt = service.title;
+                    serviceTitle.textContent = service.title;
+                    serviceDescription.textContent = service.description;
+                    serviceDisplayCard.classList.remove('flipping');
+                }, 300);
+            }
+            
+            serviceItems.forEach(item => {
+                item.addEventListener('click', function() {
+                    if (this.classList.contains('active')) return;
+                    serviceItems.forEach(i => i.classList.remove('active'));
+                    this.classList.add('active');
+                    const serviceKey = this.dataset.service;
+                    updateServiceDisplay(serviceKey);
+                });
+            });
+
+            // Set initial service
+            updateServiceDisplay('consulting');
+            
+            let isThrottled = false;
+            const throttleDuration = 500; 
+
+            serviceDisplayCard.addEventListener('wheel', (event) => {
+                event.preventDefault();
+                if (isThrottled) return;
+                isThrottled = true;
+                setTimeout(() => { isThrottled = false; }, throttleDuration);
+                const currentActive = document.querySelector('.service-item.active');
+                let currentIndex = Array.from(serviceItems).indexOf(currentActive);
+                let nextIndex;
+                if (event.deltaY > 0) {
+                    nextIndex = (currentIndex + 1) % serviceItems.length;
+                } else {
+                    nextIndex = (currentIndex - 1 + serviceItems.length) % serviceItems.length;
+                }
+                if (serviceItems[nextIndex]) {
+                    serviceItems[nextIndex].click();
+                }
+            });
+
+            // --- BACK TO TOP BUTTON LOGIC ---
+            const backToTopButton = document.getElementById('backToTop');
+            window.onscroll = function() {
+                if (document.body.scrollTop > 100 || document.documentElement.scrollTop > 100) {
+                    backToTopButton.style.display = 'block';
+                } else {
+                    backToTopButton.style.display = 'none';
+                }
+            };
+            backToTopButton.addEventListener('click', function() {
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            });
+
+            // --- CASE STUDIES SLIDER SCRIPT ---
+            const caseStudiesContainer = document.querySelector('.cards-carousel-container');
+            const carousel = document.querySelector('.cards-carousel');
+            if (caseStudiesContainer && carousel) {
+                const cardLinks = carousel.querySelectorAll('.card-link');
+                
+                if (cardLinks.length > 0) {
+                    const cardCount = cardLinks.length;
+                    const cardWidth = cardLinks[0].offsetWidth + 20; // Include margin-right
+                    const shiftInterval = 3000;
+                    const transitionSpeed = '0.7s';
+                    let currentIndex = 0;
+                    let slideInterval;
+
+                    const cardsToClone = Math.ceil(caseStudiesContainer.offsetWidth / cardWidth);
+                    for (let i = 0; i < cardsToClone && i < cardCount; i++) {
+                        const clone = cardLinks[i].cloneNode(true);
+                        carousel.appendChild(clone);
+                    }
+
+                    function shiftCard() {
+                        currentIndex++;
+                        carousel.style.transition = `transform ${transitionSpeed} ease-in-out`;
+                        const offset = -currentIndex * cardWidth;
+                        carousel.style.transform = `translateX(${offset}px)`;
+
+                        if (currentIndex >= cardCount) {
+                            setTimeout(() => {
+                                carousel.style.transition = 'none';
+                                currentIndex = 0;
+                                carousel.style.transform = `translateX(0px)`;
+                            }, 700);
+                        }
+                    }
+
+                    function startSlider() {
+                        slideInterval = setInterval(shiftCard, shiftInterval);
+                    }
+
+                    function stopSlider() {
+                        clearInterval(slideInterval);
+                    }
+
+                    startSlider();
+                    caseStudiesContainer.addEventListener('mouseenter', stopSlider);
+                    caseStudiesContainer.addEventListener('mouseleave', startSlider);
+                }
+            }
+
+            // --- GSAP SCROLL-ANIMATIONS FOR STORY SECTION ---
+            gsap.registerPlugin(ScrollTrigger);
+            
+            const storySection = document.getElementById('story');
+            const storyContainer = document.querySelector('.story-container');
+            const storyImage = document.querySelector('.story-image');
+            const storyText = document.querySelector('.story-text');
+
+            gsap.set(storyImage, { xPercent: -100, opacity: 0 });
+            gsap.set(storyText, { xPercent: 100, opacity: 0 });
+            
+            gsap.to([storyImage, storyText], {
+                scrollTrigger: {
+                    trigger: storyContainer,
+                    start: 'top 80%', 
+                    end: 'top 40%',
+                    scrub: 1, 
+                },
+                xPercent: 0,
+                opacity: 1,
+                stagger: 0.2, 
+                ease: 'power2.out'
+            });
+
+            // ✅ FIX: Reduced the scroll distance for pinning
+            function getEndDistance() {
+                return window.innerHeight * 1.5;
+            }
+            
+            let tl = gsap.timeline({
+                scrollTrigger: {
+                    trigger: storySection,
+                    start: 'center center',
+                    end: () => '+=' + getEndDistance(), // Using the shorter distance
+                    scrub: true,
+                    pin: true,
+                    pinSpacing: false, 
+                    anticipatePin: 1,
+                    invalidateOnRefresh: true,
+                }
+            });
+
+            // ✅ FIX: Simplified the timeline. Both animations start at the beginning (position 0).
+            tl.to(storyContainer, { opacity: 0, duration: 0.25 }, 0); 
+            tl.to(storySection, {
+                scale: 0.06,
+                x: () => (window.innerWidth * 0.42) + 'px',
+                y: () => (window.innerHeight * 0.42) + 'px',
+                borderRadius: '50%',
+                duration: 1,
+                transformOrigin: 'center center',
+                onComplete: () => storySection.classList.add('story-shrunk'),
+                onReverseComplete: () => storySection.classList.remove('story-shrunk')
+            }, 0); // Start this animation at the same time as the fade-out
+
+            window.addEventListener('resize', () => {
+                ScrollTrigger.refresh();
+            });
+        });
+    </script>
+</body>
+</html>
